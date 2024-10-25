@@ -21,7 +21,7 @@ The backend application should be built using Node.js and Express. It will handl
 
 **Requirements:**
 - Set up an Express server to handle image uploads
-- Use Imgur API to store images ([API docs](https://apidocs.imgur.com/), Client ID key [here](https://onetimesecret.com/secret/vkeltjmeh51cbitql4hyzmvo1gk2n9r), no need to set up an account or application yourself)
+- Use Imgur API to store images ([API docs](https://apidocs.imgur.com/), Client ID key [here](https://eu.onetimesecret.com/secret/53njtiuxxfe3zsi4bzohs1dev2sj6da), no need to set up an account or application yourself)
 - Provide endpoints to upload images and retrieve the list of uploaded images
 - Handle both large and small image files efficiently
 
