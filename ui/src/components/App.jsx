@@ -1,13 +1,12 @@
 import React from "react";
 import Header from "./Header";
-import Footer from "./Footer";
+import UploadConsole from "./UploadConsole";
 
 function App() {
   return (
-    <div>
+    <div className="bg-base-200">
       <Header />
-      <div>Image Management System</div>
-      <Footer />
+      <UploadConsole />
     </div>
   );
 }
