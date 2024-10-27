@@ -1,2 +1,5 @@
-# dependencies
-/node_modules
+# Dependencies.
+*/node_modules
+
+# Tailwind CSS.
+ui/src/styles/output.css
