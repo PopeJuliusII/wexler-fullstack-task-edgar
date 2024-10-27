@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 const UploadConsole = () => {
   // CONSTANTS
   const MAX_FILE_COUNT = 20;
-  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+  const MAX_FILE_SIZE = 100 * 1024 * 1024;
   const NEW_NAME_MAX_LENGTH = 20;
   const NEW_NAME_REGEX = /^[a-zA-Z0-9]{1,20}$/;
 
@@ -168,18 +168,18 @@ const UploadConsole = () => {
                 } selected.`
               : ""}
           </span>
-          <div>
-            <ul>
+          <div className="relative">
+            <ul className="grid grid-cols-4 gap-0">
               {selectedFiles.map(({ id, file }) => (
-                <li key={id} className="flex items-center">
+                <li key={id} className="flex items-center px-4 py-0 my-0">
                   <button
-                    className="btn btn-ghost p-2 flex items-center justify-center"
+                    className="btn btn-ghost my-0 px-1 py-0 flex items-center justify-center"
                     onClick={() => handleDelete(id)}
                   >
                     <FontAwesomeIcon icon={faTrashAlt} />
                   </button>
                   <button
-                    className="btn btn-ghost p-2 flex items-center justify-center"
+                    className="btn btn-ghost my-0 px-1 py-0 flex items-center justify-center"
                     onClick={() => {
                       handleRename(id);
                     }}
