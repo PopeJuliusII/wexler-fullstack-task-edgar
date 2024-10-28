@@ -77,10 +77,54 @@ const UploadConsole = () => {
 
   /**
    * Sends the selected files to the backend for processing.
-   * //TODO: Complete function.
    */
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    try {
+      // Upload each file concurrently.
+      await Promise.all(
+        selectedFiles.map(async (fileData) => {
+          // Create a new FormData object and append the file to it.
+          const formData = new FormData();
+          formData.append("files", fileData.file);
+
+          // Send the file to the backend for processing.
+          const response = await fetch(
+            API_ENDPOINT_BASE + IMAGES_ENDPOINT_SUFFIX,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          // If the upload was successful, update the file's state.
+          // Successful uploads are removed from the state and only failed uploads are retained.
+          if (response.ok) {
+            fileData.uploaded = true;
+            fileData.uploadFailed = false;
+          } else {
+            fileData.uploaded = false;
+            fileData.uploadFailed = true;
+          }
+        })
+      );
+
+      // Retain only the files that failed to upload.
+      setSelectedFiles((prevFiles) =>
+        prevFiles.filter((file) => file.uploadFailed || !file.uploaded)
+      );
+
+      // If any files failed to upload, alert the user.
+      if (selectedFiles.some((file) => file.uploadFailed)) {
+        alert(
+          "Some files failed to upload. They have been retained in your selection."
+        );
+      }
+    } catch (error) {
+      alert("An error occurred while uploading files. Please try again later.");
+      console.error("Error uploading files:", error);
+    }
   };
 
   /**
