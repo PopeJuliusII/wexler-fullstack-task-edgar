@@ -3,3 +3,6 @@
 
 # Tailwind CSS.
 ui/src/styles/output.css
+
+# Secrets.
+api/config/secrets.js
