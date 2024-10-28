@@ -11,7 +11,11 @@ import {
   IMAGES_ENDPOINT_SUFFIX,
 } from "../config/constants";
 
-const UploadConsole = () => {
+/**
+ * A component that allows users to upload files to the backend for processing.
+ * @param {function} onUploadSuccess - A callback function that is called when the files are successfully uploaded. 
+ */
+const UploadConsole = ({ onUploadSuccess }) => {
   // STATE VARIABLES
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -109,6 +113,12 @@ const UploadConsole = () => {
           fileData.uploaded = response.ok;
         })
       );
+
+      // If any files were successfully uploaded, onUploadSuccess is called.
+      // This triggers the recompute of the image list.
+      if (selectedFiles.some((file) => file.uploaded)) {
+        onUploadSuccess();
+      };
 
       // Retain only the files that failed to upload.
       const filesToRetain = Array.from(
