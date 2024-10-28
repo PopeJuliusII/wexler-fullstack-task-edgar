@@ -235,7 +235,10 @@ const UploadConsole = () => {
                   >
                     <FontAwesomeIcon icon={faPencilAlt} />
                   </button>
-                  {file.name}
+                  <span className="truncate" title={file.name}>
+                    {file.name.slice(0, 40) +
+                      (file.name.length > 40 ? "..." : "")}
+                  </span>
                 </li>
               ))}
             </ul>
