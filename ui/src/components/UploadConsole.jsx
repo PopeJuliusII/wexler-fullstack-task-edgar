@@ -13,12 +13,13 @@ import {
 
 /**
  * A component that allows users to upload files to the backend for processing.
- * @param {function} onUploadSuccess - A callback function that is called when the files are successfully uploaded. 
+ * @param {function} onUploadSuccess - A callback function that is called when the files are successfully uploaded.
  */
 const UploadConsole = ({ onUploadSuccess }) => {
   // STATE VARIABLES
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgressCount, setUploadProgressCount] = useState(0);
 
   // REF VARIABLES
   const fileInputRef = useRef(uuidv4());
@@ -88,6 +89,9 @@ const UploadConsole = ({ onUploadSuccess }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Set the upload progress count to the number of files to upload.
+    setUploadProgressCount(selectedFiles.length);
+
     // Disable all buttons while the files are being uploaded.
     setIsUploading(true);
 
@@ -99,18 +103,26 @@ const UploadConsole = ({ onUploadSuccess }) => {
           const formData = new FormData();
           formData.append("files", fileData.file);
 
-          // Send the file to the backend for processing.
-          const response = await fetch(
-            API_ENDPOINT_BASE + IMAGES_ENDPOINT_SUFFIX,
-            {
-              method: "POST",
-              body: formData,
-            }
-          );
+          try {
+            // Send the file to the backend for processing.
+            const response = await fetch(
+              API_ENDPOINT_BASE + IMAGES_ENDPOINT_SUFFIX,
+              {
+                method: "POST",
+                body: formData,
+              }
+            );
 
-          // If the upload was successful, update the file's state.
-          // Successful uploads are removed from the state and only failed uploads are retained.
-          fileData.uploaded = response.ok;
+            // If the upload was successful, update the file's state.
+            // Successful uploads are removed from the state and only failed uploads are retained.
+            fileData.uploaded = response.ok;
+
+            // Decrement the progress count, this is used as a progress indicator.
+            setUploadProgressCount((prevCount) => prevCount - 1);
+          } catch (error) {
+            console.error("Error uploading file:", error);
+            setUploadProgressCount((prevCount) => prevCount - 1);
+          }
         })
       );
 
@@ -118,7 +130,7 @@ const UploadConsole = ({ onUploadSuccess }) => {
       // This triggers the recompute of the image list.
       if (selectedFiles.some((file) => file.uploaded)) {
         onUploadSuccess();
-      };
+      }
 
       // Retain only the files that failed to upload.
       const filesToRetain = Array.from(
@@ -241,7 +253,11 @@ const UploadConsole = ({ onUploadSuccess }) => {
       {selectedFiles.length > 0 ? (
         <div>
           <span className="file-input-text flex items-center justify-center">
-            {selectedFiles.length > 0
+            {isUploading
+              ? `Uploading ${uploadProgressCount} file${
+                  uploadProgressCount > 1 ? "s" : ""
+                }...`
+              : selectedFiles.length > 0
               ? `${selectedFiles.length} file${
                   selectedFiles.length > 1 ? "s" : ""
                 } selected.`
@@ -250,7 +266,6 @@ const UploadConsole = ({ onUploadSuccess }) => {
           <div className="relative">
             <ul className="grid grid-cols-4 gap-0">
               {selectedFiles.map(({ id, file, uploadFailed, uploaded }) => {
-
                 // The colour of the file indicates the progress of the upload.
                 let textColorClass = "";
                 if (uploadFailed && !isUploading) {
