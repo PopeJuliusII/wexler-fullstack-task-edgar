@@ -3,6 +3,7 @@ import {
   API_ENDPOINT_BASE,
   IMAGES_ENDPOINT_SUFFIX,
   IMAGE_ENDPOINT_SUFFIX,
+  IMGUR_DOMAIN_PREFIX,
 } from "../config/constants";
 
 /**
@@ -98,6 +99,7 @@ const ImageGrid = ({ recompute, setRecompute }) => {
           return (
             <li key={image.id} className="relative">
               <div className="card lg:card-side bg-base-100 shadow-xl">
+                <a href={`${IMGUR_DOMAIN_PREFIX}${image.id}`} target="_blank" rel="noreferrer noopener">
                 <figure>
                   <img
                     src={image.link}
@@ -105,8 +107,9 @@ const ImageGrid = ({ recompute, setRecompute }) => {
                     className="h-60 w-full object-cover"
                   />
                 </figure>
+                </a>
                 <div className="card-body max-h-60 min-h-60 max-w-full">
-                  <h2 className="card-title text-lg truncate">
+                  <h2 className="card-title text-lg truncate" title={image.title} onClick={() => navigator.clipboard.writeText(image.title)}>
                     {image.title.length > 30 ? `${image.title.slice(0, 30)}...` : image.title}
                   </h2>
                   <div className="space-y-1 flex-grow">
