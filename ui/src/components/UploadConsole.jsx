@@ -14,6 +14,7 @@ import {
 const UploadConsole = () => {
   // STATE VARIABLES
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   // REF VARIABLES
   const fileInputRef = useRef(uuidv4());
@@ -66,7 +67,7 @@ const UploadConsole = () => {
     }
 
     // Add the valid files to the state.
-    const files = Array.from(validFiles).map((file) => {
+    const files = validFiles.map((file) => {
       return {
         id: uuidv4(),
         file: file,
@@ -82,6 +83,9 @@ const UploadConsole = () => {
    */
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Disable all buttons while the files are being uploaded.
+    setIsUploading(true);
 
     try {
       // Upload each file concurrently.
@@ -102,20 +106,16 @@ const UploadConsole = () => {
 
           // If the upload was successful, update the file's state.
           // Successful uploads are removed from the state and only failed uploads are retained.
-          if (response.ok) {
-            fileData.uploaded = true;
-            fileData.uploadFailed = false;
-          } else {
-            fileData.uploaded = false;
-            fileData.uploadFailed = true;
-          }
+          fileData.uploaded = response.ok;
         })
       );
 
       // Retain only the files that failed to upload.
-      setSelectedFiles((prevFiles) =>
-        prevFiles.filter((file) => file.uploadFailed || !file.uploaded)
+      const filesToRetain = Array.from(
+        selectedFiles.filter((file) => !file.uploaded)
       );
+      filesToRetain.forEach((file) => (file.uploadFailed = true));
+      setSelectedFiles(filesToRetain);
 
       // If any files failed to upload, alert the user.
       if (selectedFiles.some((file) => file.uploadFailed)) {
@@ -127,6 +127,9 @@ const UploadConsole = () => {
       alert("An error occurred while uploading files. Please try again later.");
       console.error("Error uploading files:", error);
     }
+
+    // Re-enable all buttons after the files have been uploaded.
+    setIsUploading(false);
   };
 
   /**
@@ -166,10 +169,11 @@ const UploadConsole = () => {
       setSelectedFiles((prevFiles) =>
         prevFiles.map((file) => {
           if (file.id === id) {
-
             // Update the name of the file by creating a new File object.
             const newFileName = newName + "." + fileExtension;
-            const newFile = new File([file.file], newFileName, { type: file.file.type });
+            const newFile = new File([file.file], newFileName, {
+              type: file.file.type,
+            });
             return {
               ...file,
               file: newFile,
@@ -191,6 +195,7 @@ const UploadConsole = () => {
             type="button"
             className="btn btn-active btn-neutral"
             onClick={handleButtonClick}
+            disabled={isUploading}
           >
             Select Files
           </button>
@@ -205,10 +210,19 @@ const UploadConsole = () => {
             accept="image/jpeg image/jpg image/gif image/png image/apng image/tiff"
             onChange={handleFileChange}
           />
-          <button type="button" className="btn btn-error" onClick={handleReset}>
+          <button
+            type="button"
+            className="btn btn-error"
+            onClick={handleReset}
+            disabled={isUploading}
+          >
             Reset
           </button>
-          <button type="submit" className="btn btn-accent">
+          <button
+            type="submit"
+            className="btn btn-accent"
+            disabled={isUploading}
+          >
             Upload
           </button>
         </div>
@@ -225,28 +239,44 @@ const UploadConsole = () => {
           </span>
           <div className="relative">
             <ul className="grid grid-cols-4 gap-0">
-              {selectedFiles.map(({ id, file }) => (
-                <li key={id} className="flex items-center px-4 py-0 my-0">
-                  <button
-                    className="btn btn-ghost my-0 px-1 py-0 flex items-center justify-center"
-                    onClick={() => handleDelete(id)}
-                  >
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </button>
-                  <button
-                    className="btn btn-ghost my-0 px-1 py-0 flex items-center justify-center"
-                    onClick={() => {
-                      handleRename(id);
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faPencilAlt} />
-                  </button>
-                  <span className="truncate" title={file.name}>
-                    {file.name.slice(0, 40) +
-                      (file.name.length > 40 ? "..." : "")}
-                  </span>
-                </li>
-              ))}
+              {selectedFiles.map(({ id, file, uploadFailed, uploaded }) => {
+
+                // The colour of the file indicates the progress of the upload.
+                let textColorClass = "";
+                if (uploadFailed && !isUploading) {
+                  textColorClass = "text-red-500";
+                } else if (isUploading) {
+                  textColorClass = "text-yellow-500";
+                } else {
+                  textColorClass = "text-gray-500";
+                }
+
+                return (
+                  <li key={id} className="flex items-center px-4 py-0 my-0">
+                    <button
+                      className="btn btn-ghost my-0 px-1 py-0 flex items-center justify-center"
+                      onClick={() => handleDelete(id)}
+                    >
+                      <FontAwesomeIcon icon={faTrashAlt} />
+                    </button>
+                    <button
+                      className="btn btn-ghost my-0 px-1 py-0 flex items-center justify-center"
+                      onClick={() => {
+                        handleRename(id);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faPencilAlt} />
+                    </button>
+                    <span
+                      className={`truncate ${textColorClass}`}
+                      title={file.name}
+                    >
+                      {file.name.slice(0, 40) +
+                        (file.name.length > 40 ? "..." : "")}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
