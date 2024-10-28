@@ -13,5 +13,6 @@ export const NEW_NAME_MAX_LENGTH = 20;
 export const NEW_NAME_REGEX = /^[a-zA-Z0-9]{1,20}$/;
 
 // Upload image endpoints - endpoints used when uploading images.
-export const API_ENDPOINT_BASE = "http://localhost:9001";
-export const IMAGES_ENDPOINT_SUFFIX = "/images";
+export const API_ENDPOINT_BASE = "http://localhost:9001/";
+export const IMAGES_ENDPOINT_SUFFIX = "images/";
+export const IMAGE_ENDPOINT_SUFFIX = "image/";
