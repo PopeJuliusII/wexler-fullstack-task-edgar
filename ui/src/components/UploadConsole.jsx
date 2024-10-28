@@ -2,14 +2,16 @@ import React, { useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt, faPencilAlt } from "@fortawesome/free-solid-svg-icons";
 import { v4 as uuidv4 } from "uuid";
+import {
+  MAX_FILE_COUNT,
+  MAX_FILE_SIZE,
+  NEW_NAME_MAX_LENGTH,
+  NEW_NAME_REGEX,
+  API_ENDPOINT_BASE,
+  IMAGES_ENDPOINT_SUFFIX,
+} from "../config/constants";
 
 const UploadConsole = () => {
-  // CONSTANTS
-  const MAX_FILE_COUNT = 20;
-  const MAX_FILE_SIZE = 100 * 1024 * 1024;
-  const NEW_NAME_MAX_LENGTH = 20;
-  const NEW_NAME_REGEX = /^[a-zA-Z0-9]{1,20}$/;
-
   // STATE VARIABLES
   const [selectedFiles, setSelectedFiles] = useState([]);
 
