@@ -65,7 +65,8 @@ router.get("/images", async (req, res) => {
   try {
     // The thumbnail size to retrieve from Imgur.
     //TODO: Allow the client to specify the thumbnail size.
-    const thumbnailSize = "s";
+    // "s" is optimal for the grid view, but "m" is a good compromise between quality and speed.
+    const thumbnailSize = "m";
 
     // Pull data on all images from the account.
     const allImages = await axios.get(IMGUR_ACCOUNT_IMAGES_ENDPOINT, {
