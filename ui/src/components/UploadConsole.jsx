@@ -193,7 +193,10 @@ const UploadConsole = () => {
             type="file"
             className="hidden"
             multiple
-            accept="image/*"
+            // These are Imgur's accepted file types.
+            // Source: https://apidocs.imgur.com/#2078c7e0-c2b8-4bc8-a646-6e544b087d0f
+            // Alternatively, replace with accept="image/*" for all image types and to check exclusively on the backend.
+            accept="image/jpeg image/jpg image/gif image/png image/apng image/tiff"
             onChange={handleFileChange}
           />
           <button type="button" className="btn btn-error" onClick={handleReset}>
