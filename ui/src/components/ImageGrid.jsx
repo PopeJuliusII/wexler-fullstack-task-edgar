@@ -96,7 +96,7 @@ const ImageGrid = ({ recompute, setRecompute }) => {
       <ul className="grid grid-cols-2 gap-4 mx-8">
         {images.map((image) => {
           return (
-            <li key={image.id} className="relative">
+            <li key={image.id} className="relative overflow-hidden whitespace-nowrap max-w-full max-h-60">
               <div className="card lg:card-side bg-base-100 shadow-xl max-h-60 min-h-60">
                 <figure>
                   <img
@@ -105,13 +105,13 @@ const ImageGrid = ({ recompute, setRecompute }) => {
                     className="h-60 w-full object-cover"
                   />
                 </figure>
-                <div className="card-body max-h-60 min-h-60 max-w-full">
-                  <h2 className="card-title text-lg truncate overflow-hidden whitespace-nowrap">
+                <div className="card-body max-h-60 min-h-60 max-w-full flex flex-col">
+                  <h2 className="card-title text-lg truncate">
                     {image.title}
                   </h2>
-                  <div className="space-y-1">
-                    <p>Views: {image.views}</p>
-                    <p>
+                  <div className="space-y-1 flex-grow">
+                    <p className="text-sm">Views: {image.views}</p>
+                    <p className="text-sm">
                       {`Added On: ${new Date(
                         image.datetime * 1000
                       ).toLocaleString()}`}
