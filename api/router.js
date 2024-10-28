@@ -36,7 +36,7 @@ router.post("/images", upload.array("files"), async (req, res) => {
           responseTracker.status = response.status;
           responseTracker.success = response.status === 200;
         } catch (error) {
-          responseTracker.status = error.response.status;
+          responseTracker.status = error?.response?.status ?? 500;
         }
 
         return responseTracker;
@@ -50,7 +50,7 @@ router.post("/images", upload.array("files"), async (req, res) => {
       res.status(500).send("Failed to upload images to Imgur.");
     }
   } catch (error) {
-    console.error("Error uploading images to Imgur:", error.message);
+    console.error("Error uploading images to Imgur:", error?.message ?? error);
     res.status(500).send("Failed to upload images to Imgur.");
   }
 });
@@ -85,7 +85,7 @@ router.get("/images", async (req, res) => {
     // Return the data to the user.
     res.send(allImagesData);
   } catch (error) {
-    console.error("Error fetching images from Imgur:", error.message);
+    console.error("Error fetching images from Imgur:", error?.message ?? error);
     res.status(500).send("Failed to fetch images from Imgur.");
   }
 });
@@ -118,13 +118,13 @@ router.get("/image/:imageid", async (req, res) => {
     res.status(200).send(image.data.data);
   } catch (error) {
     // If the image is not found, return a 404.
-    if (error.response.status === 404) {
+    if (error?.response?.status === 404) {
       res.status(404).send("Image not found.");
       return;
     }
 
     // Otherwise, return a 500.
-    console.error("Error fetching image from Imgur:", error.message);
+    console.error("Error fetching image from Imgur:", error?.message ?? error);
     res.status(500).send("Failed to fetch image from Imgur.");
   }
 });
@@ -157,13 +157,13 @@ router.delete("/image/:imageid", async (req, res) => {
     res.status(200).send("success");
   } catch (error) {
     // If the image is not found, return a 404.
-    if (error.response.status === 404) {
+    if (error?.response?.status === 404) {
       res.status(404).send("Image not found.");
       return;
     }
 
     // Otherwise, return a 500.
-    console.error("Error fetching image from Imgur:", error.message);
+    console.error("Error fetching image from Imgur:", error?.message ?? error);
     res.status(500).send("Failed to fetch image from Imgur.");
   }
 });
