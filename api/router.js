@@ -5,7 +5,6 @@ import { IMGUR_BEARER_TOKEN } from "./config/secrets";
 import {
   IMGUR_ACCOUNT_IMAGES_ENDPOINT,
   IMGUR_IMAGE_ENDPOINT,
-  IMGUR_ACCOUNT_IMAGES_IDS_ENDOPOINT,
 } from "./config/endpoints";
 
 const router = express.Router();
