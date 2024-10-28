@@ -96,8 +96,8 @@ const ImageGrid = ({ recompute, setRecompute }) => {
       <ul className="grid grid-cols-2 gap-4 mx-8">
         {images.map((image) => {
           return (
-            <li key={image.id} className="relative overflow-hidden whitespace-nowrap max-w-full max-h-60">
-              <div className="card lg:card-side bg-base-100 shadow-xl max-h-60 min-h-60">
+            <li key={image.id} className="relative">
+              <div className="card lg:card-side bg-base-100 shadow-xl">
                 <figure>
                   <img
                     src={image.link}
@@ -105,9 +105,9 @@ const ImageGrid = ({ recompute, setRecompute }) => {
                     className="h-60 w-full object-cover"
                   />
                 </figure>
-                <div className="card-body max-h-60 min-h-60 max-w-full flex flex-col">
+                <div className="card-body max-h-60 min-h-60 max-w-full">
                   <h2 className="card-title text-lg truncate">
-                    {image.title}
+                    {image.title.length > 30 ? `${image.title.slice(0, 30)}...` : image.title}
                   </h2>
                   <div className="space-y-1 flex-grow">
                     <p className="text-sm">Views: {image.views}</p>
