@@ -70,6 +70,8 @@ const UploadConsole = () => {
       return {
         id: uuidv4(),
         file: file,
+        uploaded: false,
+        uploadFailed: false,
       };
     });
     files && setSelectedFiles((prevFiles) => [...prevFiles, ...files]);
@@ -164,9 +166,13 @@ const UploadConsole = () => {
       setSelectedFiles((prevFiles) =>
         prevFiles.map((file) => {
           if (file.id === id) {
+
+            // Update the name of the file by creating a new File object.
+            const newFileName = newName + "." + fileExtension;
+            const newFile = new File([file.file], newFileName, { type: file.file.type });
             return {
               ...file,
-              file: { ...file.file, name: newName + "." + fileExtension },
+              file: newFile,
             };
           }
           return file;
