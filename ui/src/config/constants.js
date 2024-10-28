@@ -16,3 +16,4 @@ export const NEW_NAME_REGEX = /^[a-zA-Z0-9]{1,20}$/;
 export const API_ENDPOINT_BASE = "http://localhost:9001/";
 export const IMAGES_ENDPOINT_SUFFIX = "images/";
 export const IMAGE_ENDPOINT_SUFFIX = "image/";
+export const IMGUR_DOMAIN_PREFIX = "https://i.imgur.com/";
