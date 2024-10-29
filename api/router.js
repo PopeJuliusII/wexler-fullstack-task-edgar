@@ -15,43 +15,71 @@ const upload = multer();
  * The multer middleware is used to process the files uploaded in the request.
  */
 router.post("/images", upload.array("files"), async (req, res) => {
-  try {
-    const responses = await Promise.all(
-      req.files.map(async (file) => {
-        const formData = new FormData();
-        formData.append("image", file.buffer.toString("base64"));
-        formData.append("title", file.originalname);
+  if (!req.files || req.files.length === 0 || !Array.isArray(req.files)) {
+    res
+      .status(400)
+      .send("No files attached or files are incorrectly formatted.");
+    return;
+  }
 
-        // The response tracker will give the status of each file upload and will be used to send the response back to the client.
-        const responseTracker = {
-          file: file.originalname,
-          success: false,
-        };
-        try {
-          const response = await axios.post(IMGUR_IMAGE_ENDPOINT, formData, {
-            headers: {
-              Authorization: `Bearer ${IMGUR_BEARER_TOKEN}`,
-            },
-          });
-          responseTracker.status = response.status;
-          responseTracker.success = response.status === 200;
-        } catch (error) {
-          responseTracker.status = error?.response?.status ?? 500;
-        }
+  const responses = await Promise.all(
+    req.files.map(async (file) => {
+      const formData = new FormData();
+      formData.append("image", file.buffer.toString("base64"));
+      formData.append("title", file.originalname);
 
+      // The response tracker will give the status of each file upload and will be used to send the response back to the client.
+      const responseTracker = {
+        file: file.originalname,
+        success: false,
+        typeError: false,
+      };
+
+      // If the filetype is not one of the allowed types, the upload will fail.
+      // These are Imgur's accepted file types.
+      // Source: https://apidocs.imgur.com/#2078c7e0-c2b8-4bc8-a646-6e544b087d0f
+      if (
+        ![
+          "image/jpeg",
+          "image/jpg",
+          "image/gif",
+          "image/png",
+          "image/apng",
+          "image/tiff",
+        ].includes(file.mimetype)
+      ) {
+        responseTracker.typeError = true;
         return responseTracker;
-      })
-    );
+      }
 
-    if (responses.every((response) => response.success)) {
-      res.status(200).send("success");
-    } else {
-      //TODO: Integrate the returning of the responseTracker to the client.
-      res.status(500).send("Failed to upload images to Imgur.");
-    }
-  } catch (error) {
-    console.error("Error uploading images to Imgur:", error?.message ?? error);
+      try {
+        const response = await axios.post(IMGUR_IMAGE_ENDPOINT, formData, {
+          headers: {
+            Authorization: `Bearer ${IMGUR_BEARER_TOKEN}`,
+          },
+        });
+        responseTracker.status = response.status;
+        responseTracker.success = response.status === 200;
+      } catch (error) {
+        responseTracker.status = error?.response?.status ?? 500;
+      }
+
+      return responseTracker;
+    })
+  );
+
+  if (responses.every((response) => response.success)) {
+    res.status(200).send("success");
+  } else if (responses.some((response) => response.status === 500)) {
     res.status(500).send("Failed to upload images to Imgur.");
+  } else {
+    //TODO: Integrate the returning of the responseTracker to the client and
+    // the usage of additional error messages and codes for, for instance, type errors.
+    res
+      .status(400)
+      .send(
+        "Failed to upload some images to Imgur. Ensure that all files uploaded are of the correct size and type."
+      );
   }
 });
 
@@ -99,12 +127,6 @@ router.get("/images", async (req, res) => {
  */
 router.get("/image/:imageid", async (req, res) => {
   try {
-    // Check to see if the image ID is valid.
-    if (!req.params.imageid) {
-      res.status(400).send("Image ID is required.");
-      return;
-    }
-
     // Pull the data for the specific image.
     const image = await axios.get(
       `${IMGUR_IMAGE_ENDPOINT}/${req.params.imageid}`,
@@ -138,12 +160,6 @@ router.get("/image/:imageid", async (req, res) => {
  */
 router.delete("/image/:imageid", async (req, res) => {
   try {
-    // Check to see if the image ID is valid.
-    if (!req.params.imageid) {
-      res.status(400).send("Image ID is required.");
-      return;
-    }
-
     // Pull the data for the specific image.
     const response = await axios.delete(
       `${IMGUR_IMAGE_ENDPOINT}/${req.params.imageid}`,
@@ -165,7 +181,7 @@ router.delete("/image/:imageid", async (req, res) => {
 
     // Otherwise, return a 500.
     console.error("Error fetching image from Imgur:", error?.message ?? error);
-    res.status(500).send("Failed to fetch image from Imgur.");
+    res.status(500).send("Failed to delete image from Imgur.");
   }
 });
 
