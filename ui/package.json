@@ -24,11 +24,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "yarn build:tailwind && react-scripts start",
+    "build": "yarn build:tailwind && react-scripts build",
     "test": "jest",
     "eject": "react-scripts eject",
-    "build:tailwind": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --watch"
+    "build:tailwind": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css"
   },
   "eslintConfig": {
     "extends": [
