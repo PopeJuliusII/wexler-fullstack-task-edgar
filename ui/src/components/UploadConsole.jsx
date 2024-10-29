@@ -31,9 +31,7 @@ const UploadConsole = ({ onUploadSuccess }) => {
    * the value of the input cannot be set.
    */
   const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current.click();
   };
 
   /**
@@ -95,55 +93,55 @@ const UploadConsole = ({ onUploadSuccess }) => {
     // Disable all buttons while the files are being uploaded.
     setIsUploading(true);
 
-      // Upload each file concurrently.
-      await Promise.all(
-        selectedFiles.map(async (fileData) => {
-          // Create a new FormData object and append the file to it.
-          const formData = new FormData();
-          formData.append("files", fileData.file);
+    // Upload each file concurrently.
+    await Promise.all(
+      selectedFiles.map(async (fileData) => {
+        // Create a new FormData object and append the file to it.
+        const formData = new FormData();
+        formData.append("files", fileData.file);
 
-          try {
-            // Send the file to the backend for processing.
-            const response = await fetch(
-              API_ENDPOINT_BASE + IMAGES_ENDPOINT_SUFFIX,
-              {
-                method: "POST",
-                body: formData,
-              }
-            );
+        try {
+          // Send the file to the backend for processing.
+          const response = await fetch(
+            API_ENDPOINT_BASE + IMAGES_ENDPOINT_SUFFIX,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
 
-            // If the upload was successful, update the file's state.
-            // Successful uploads are removed from the state and only failed uploads are retained.
-            fileData.uploaded = response.ok;
+          // If the upload was successful, update the file's state.
+          // Successful uploads are removed from the state and only failed uploads are retained.
+          fileData.uploaded = response.ok;
 
-            // Decrement the progress count, this is used as a progress indicator.
-            setUploadProgressCount((prevCount) => prevCount - 1);
-          } catch (error) {
-            console.error("Error uploading file:", error);
-            setUploadProgressCount((prevCount) => prevCount - 1);
-          }
-        })
+          // Decrement the progress count, this is used as a progress indicator.
+          setUploadProgressCount((prevCount) => prevCount - 1);
+        } catch (error) {
+          console.error("Error uploading file:", error);
+          setUploadProgressCount((prevCount) => prevCount - 1);
+        }
+      })
+    );
+
+    // If any files were successfully uploaded, onUploadSuccess is called.
+    // This triggers the recompute of the image list.
+    if (selectedFiles.some((file) => file.uploaded)) {
+      onUploadSuccess();
+    }
+
+    // Retain only the files that failed to upload.
+    const filesToRetain = Array.from(
+      selectedFiles.filter((file) => !file.uploaded)
+    );
+    filesToRetain.forEach((file) => (file.uploadFailed = true));
+    setSelectedFiles(filesToRetain);
+
+    // If any files failed to upload, alert the user.
+    if (selectedFiles.some((file) => file.uploadFailed)) {
+      alert(
+        "Some files failed to upload. They have been retained in your selection."
       );
-
-      // If any files were successfully uploaded, onUploadSuccess is called.
-      // This triggers the recompute of the image list.
-      if (selectedFiles.some((file) => file.uploaded)) {
-        onUploadSuccess();
-      }
-
-      // Retain only the files that failed to upload.
-      const filesToRetain = Array.from(
-        selectedFiles.filter((file) => !file.uploaded)
-      );
-      filesToRetain.forEach((file) => (file.uploadFailed = true));
-      setSelectedFiles(filesToRetain);
-
-      // If any files failed to upload, alert the user.
-      if (selectedFiles.some((file) => file.uploadFailed)) {
-        alert(
-          "Some files failed to upload. They have been retained in your selection."
-        );
-      }
+    }
 
     // Re-enable all buttons after the files have been uploaded.
     setIsUploading(false);
@@ -177,11 +175,11 @@ const UploadConsole = ({ onUploadSuccess }) => {
       .file.name.split(".")
       .pop();
     if (!newName) {
-      alert("You must enter a name for the file.");
+      alert("You must enter a name for the file. Please try again.");
     } else if (!NEW_NAME_REGEX.test(newName)) {
-      alert("Names must be alphanumeric. Do not include the file extension.");
-    } else if (newName.length > 20) {
-      alert(`Names must be under ${NEW_NAME_MAX_LENGTH} characters.`);
+      alert(
+        `Names must be alphanumeric and under ${NEW_NAME_MAX_LENGTH} characters. Do not include the file extension.`
+      );
     } else {
       setSelectedFiles((prevFiles) =>
         prevFiles.map((file) => {
@@ -248,16 +246,17 @@ const UploadConsole = ({ onUploadSuccess }) => {
       {selectedFiles.length > 0 ? <div className="divider"></div> : <></>}
       {selectedFiles.length > 0 ? (
         <div>
-          <span className="file-input-text flex items-center justify-center" data-testid="selected-status-text">
+          <span
+            className="file-input-text flex items-center justify-center"
+            data-testid="selected-status-text"
+          >
             {isUploading
               ? `Uploading ${uploadProgressCount} file${
                   uploadProgressCount > 1 ? "s" : ""
                 }...`
-              : selectedFiles.length > 0
-              ? `${selectedFiles.length} file${
+              : `${selectedFiles.length} file${
                   selectedFiles.length > 1 ? "s" : ""
-                } selected.`
-              : ""}
+                } selected.`}
           </span>
           <div className="relative">
             <ul className="grid grid-cols-4 gap-0">
