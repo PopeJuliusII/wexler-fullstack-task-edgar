@@ -16,6 +16,11 @@ const upload = multer();
  */
 router.post("/images", upload.array("files"), async (req, res) => {
   try {
+    if (!req.files || req.files.length === 0) {
+      res.status(400).send("No files attached.");
+      return;
+    }
+
     const responses = await Promise.all(
       req.files.map(async (file) => {
         const formData = new FormData();
