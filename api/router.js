@@ -15,57 +15,72 @@ const upload = multer();
  * The multer middleware is used to process the files uploaded in the request.
  */
 router.post("/images", upload.array("files"), async (req, res) => {
-    if (!req.files || req.files.length === 0 || !Array.isArray(req.files)) {
-      res.status(400).send("No files attached or files is incorrectly formatted.");
-      return;
-    }
+  if (!req.files || req.files.length === 0 || !Array.isArray(req.files)) {
+    res
+      .status(400)
+      .send("No files attached or files is incorrectly formatted.");
+    return;
+  }
 
-    const responses = await Promise.all(
-      req.files.map(async (file) => {
-        const formData = new FormData();
-        formData.append("image", file.buffer.toString("base64"));
-        formData.append("title", file.originalname);
+  const responses = await Promise.all(
+    req.files.map(async (file) => {
+      const formData = new FormData();
+      formData.append("image", file.buffer.toString("base64"));
+      formData.append("title", file.originalname);
 
-        // The response tracker will give the status of each file upload and will be used to send the response back to the client.
-        const responseTracker = {
-          file: file.originalname,
-          success: false,
-          typeError: false,
-        };
+      // The response tracker will give the status of each file upload and will be used to send the response back to the client.
+      const responseTracker = {
+        file: file.originalname,
+        success: false,
+        typeError: false,
+      };
 
-        // If the filetype is not one of the allowed types, the upload will fail.
-        // These are Imgur's accepted file types.
-        // Source: https://apidocs.imgur.com/#2078c7e0-c2b8-4bc8-a646-6e544b087d0f
-        if (!["image/jpeg", "image/jpg", "image/gif", "image/png", "image/apng", "image/tiff"].includes(file.mimetype)) {
-          responseTracker.typeError = true;
-          return responseTracker;
-        }
-
-        try {
-          const response = await axios.post(IMGUR_IMAGE_ENDPOINT, formData, {
-            headers: {
-              Authorization: `Bearer ${IMGUR_BEARER_TOKEN}`,
-            },
-          });
-          responseTracker.status = response.status;
-          responseTracker.success = response.status === 200;
-        } catch (error) {
-          responseTracker.status = error?.response?.status ?? 500;
-        }
-
+      // If the filetype is not one of the allowed types, the upload will fail.
+      // These are Imgur's accepted file types.
+      // Source: https://apidocs.imgur.com/#2078c7e0-c2b8-4bc8-a646-6e544b087d0f
+      if (
+        ![
+          "image/jpeg",
+          "image/jpg",
+          "image/gif",
+          "image/png",
+          "image/apng",
+          "image/tiff",
+        ].includes(file.mimetype)
+      ) {
+        responseTracker.typeError = true;
         return responseTracker;
-      })
-    );
+      }
 
-    if (responses.every((response) => response.success)) {
-      res.status(200).send("success");
-    } else if (responses.some((response) => response.status === 500)) {
-      res.status(500).send("Failed to upload images to Imgur.");
-    } else {
-      //TODO: Integrate the returning of the responseTracker to the client and
-      // the usage of additional error messages and codes for, for instance, type errors.
-      res.status(400).send("Failed to upload some images to Imgur. Ensure that all files uploaded are of the correct size and type.");
-    }
+      try {
+        const response = await axios.post(IMGUR_IMAGE_ENDPOINT, formData, {
+          headers: {
+            Authorization: `Bearer ${IMGUR_BEARER_TOKEN}`,
+          },
+        });
+        responseTracker.status = response.status;
+        responseTracker.success = response.status === 200;
+      } catch (error) {
+        responseTracker.status = error?.response?.status ?? 500;
+      }
+
+      return responseTracker;
+    })
+  );
+
+  if (responses.every((response) => response.success)) {
+    res.status(200).send("success");
+  } else if (responses.some((response) => response.status === 500)) {
+    res.status(500).send("Failed to upload images to Imgur.");
+  } else {
+    //TODO: Integrate the returning of the responseTracker to the client and
+    // the usage of additional error messages and codes for, for instance, type errors.
+    res
+      .status(400)
+      .send(
+        "Failed to upload some images to Imgur. Ensure that all files uploaded are of the correct size and type."
+      );
+  }
 });
 
 /**
@@ -112,7 +127,6 @@ router.get("/images", async (req, res) => {
  */
 router.get("/image/:imageid", async (req, res) => {
   try {
-
     // Pull the data for the specific image.
     const image = await axios.get(
       `${IMGUR_IMAGE_ENDPOINT}/${req.params.imageid}`,
@@ -146,7 +160,6 @@ router.get("/image/:imageid", async (req, res) => {
  */
 router.delete("/image/:imageid", async (req, res) => {
   try {
-
     // Pull the data for the specific image.
     const response = await axios.delete(
       `${IMGUR_IMAGE_ENDPOINT}/${req.params.imageid}`,
