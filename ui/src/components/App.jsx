@@ -4,7 +4,6 @@ import UploadConsole from "./UploadConsole";
 import ImageGrid from "./ImageGrid";
 
 function App() {
-
   //TODO: A significant gain in performance can be achieved by only
   // pulling the specific number of images needed. This could be achieved
   // by using a paginated endpoint and converting recompute to a number of images.
