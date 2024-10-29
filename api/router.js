@@ -15,9 +15,8 @@ const upload = multer();
  * The multer middleware is used to process the files uploaded in the request.
  */
 router.post("/images", upload.array("files"), async (req, res) => {
-  try {
-    if (!req.files || req.files.length === 0) {
-      res.status(400).send("No files attached.");
+    if (!req.files || req.files.length === 0 || !Array.isArray(req.files)) {
+      res.status(400).send("No files attached or files is incorrectly formatted.");
       return;
     }
 
@@ -31,7 +30,17 @@ router.post("/images", upload.array("files"), async (req, res) => {
         const responseTracker = {
           file: file.originalname,
           success: false,
+          typeError: false,
         };
+
+        // If the filetype is not one of the allowed types, the upload will fail.
+        // These are Imgur's accepted file types.
+        // Source: https://apidocs.imgur.com/#2078c7e0-c2b8-4bc8-a646-6e544b087d0f
+        if (!["image/jpeg", "image/jpg", "image/gif", "image/png", "image/apng", "image/tiff"].includes(file.mimetype)) {
+          responseTracker.typeError = true;
+          return responseTracker;
+        }
+
         try {
           const response = await axios.post(IMGUR_IMAGE_ENDPOINT, formData, {
             headers: {
@@ -50,14 +59,13 @@ router.post("/images", upload.array("files"), async (req, res) => {
 
     if (responses.every((response) => response.success)) {
       res.status(200).send("success");
-    } else {
-      //TODO: Integrate the returning of the responseTracker to the client.
+    } else if (responses.some((response) => response.status === 500)) {
       res.status(500).send("Failed to upload images to Imgur.");
+    } else {
+      //TODO: Integrate the returning of the responseTracker to the client and
+      // the usage of additional error messages and codes for, for instance, type errors.
+      res.status(400).send("Failed to upload some images to Imgur. Ensure that all files uploaded are of the correct size and type.");
     }
-  } catch (error) {
-    console.error("Error uploading images to Imgur:", error?.message ?? error);
-    res.status(500).send("Failed to upload images to Imgur.");
-  }
 });
 
 /**
