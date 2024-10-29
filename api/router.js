@@ -104,11 +104,6 @@ router.get("/images", async (req, res) => {
  */
 router.get("/image/:imageid", async (req, res) => {
   try {
-    // Check to see if the image ID is valid.
-    if (!req.params.imageid) {
-      res.status(400).send("Image ID is required.");
-      return;
-    }
 
     // Pull the data for the specific image.
     const image = await axios.get(
@@ -143,11 +138,6 @@ router.get("/image/:imageid", async (req, res) => {
  */
 router.delete("/image/:imageid", async (req, res) => {
   try {
-    // Check to see if the image ID is valid.
-    if (!req.params.imageid) {
-      res.status(400).send("Image ID is required.");
-      return;
-    }
 
     // Pull the data for the specific image.
     const response = await axios.delete(
