@@ -170,7 +170,7 @@ router.delete("/image/:imageid", async (req, res) => {
 
     // Otherwise, return a 500.
     console.error("Error fetching image from Imgur:", error?.message ?? error);
-    res.status(500).send("Failed to fetch image from Imgur.");
+    res.status(500).send("Failed to delete image from Imgur.");
   }
 });
 
