@@ -33,7 +33,7 @@ describe("Imgur Router", () => {
     it("Files are not attached.", async () => {
       const response = await request(app).post("/images");
       expect(response.status).toBe(400);
-      expect(response.text).toBe("No files attached.");
+      expect(response.text).toBe("No files attached or files are incorrectly formatted.");
     });
 
     it("An invalid file is passed.", async () => {

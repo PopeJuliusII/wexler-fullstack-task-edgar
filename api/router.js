@@ -18,7 +18,7 @@ router.post("/images", upload.array("files"), async (req, res) => {
   if (!req.files || req.files.length === 0 || !Array.isArray(req.files)) {
     res
       .status(400)
-      .send("No files attached or files is incorrectly formatted.");
+      .send("No files attached or files are incorrectly formatted.");
     return;
   }
 
