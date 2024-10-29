@@ -95,7 +95,6 @@ const UploadConsole = ({ onUploadSuccess }) => {
     // Disable all buttons while the files are being uploaded.
     setIsUploading(true);
 
-    try {
       // Upload each file concurrently.
       await Promise.all(
         selectedFiles.map(async (fileData) => {
@@ -145,10 +144,6 @@ const UploadConsole = ({ onUploadSuccess }) => {
           "Some files failed to upload. They have been retained in your selection."
         );
       }
-    } catch (error) {
-      alert("An error occurred while uploading files. Please try again later.");
-      console.error("Error uploading files:", error);
-    }
 
     // Re-enable all buttons after the files have been uploaded.
     setIsUploading(false);
@@ -231,6 +226,7 @@ const UploadConsole = ({ onUploadSuccess }) => {
             // Alternatively, replace with accept="image/*" for all image types and to check exclusively on the backend.
             accept="image/jpeg image/jpg image/gif image/png image/apng image/tiff"
             onChange={handleFileChange}
+            data-testid="file-input"
           />
           <button
             type="button"
@@ -252,7 +248,7 @@ const UploadConsole = ({ onUploadSuccess }) => {
       {selectedFiles.length > 0 ? <div className="divider"></div> : <></>}
       {selectedFiles.length > 0 ? (
         <div>
-          <span className="file-input-text flex items-center justify-center">
+          <span className="file-input-text flex items-center justify-center" data-testid="selected-status-text">
             {isUploading
               ? `Uploading ${uploadProgressCount} file${
                   uploadProgressCount > 1 ? "s" : ""
@@ -281,6 +277,7 @@ const UploadConsole = ({ onUploadSuccess }) => {
                     <button
                       className="btn btn-ghost my-0 px-1 py-0 flex items-center justify-center"
                       onClick={() => handleDelete(id)}
+                      aria-label={`Delete ${file.name}`}
                     >
                       <FontAwesomeIcon icon={faTrashAlt} />
                     </button>
@@ -289,6 +286,7 @@ const UploadConsole = ({ onUploadSuccess }) => {
                       onClick={() => {
                         handleRename(id);
                       }}
+                      aria-label={`Rename ${file.name}`}
                     >
                       <FontAwesomeIcon icon={faPencilAlt} />
                     </button>
