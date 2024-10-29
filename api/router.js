@@ -61,6 +61,7 @@ router.post("/images", upload.array("files"), async (req, res) => {
         responseTracker.status = response.status;
         responseTracker.success = response.status === 200;
       } catch (error) {
+        console.error("Error uploading image to Imgur:", error?.message ?? error);
         responseTracker.status = error?.response?.status ?? 500;
       }
 

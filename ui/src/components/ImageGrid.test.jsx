@@ -42,6 +42,27 @@ describe("ImageGrid", () => {
     expect(imageTitle).toBeInTheDocument();
   });
 
+  // Test that the component displays the images even if the title is missing.
+  test("Renders images from the API endpoint even if the title is missing.", async () => {
+    fetch.mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve([
+            {
+              id: "1",
+              link: "https://i.imgur.com/test.jpg",
+              views: 100,
+              datetime: 1620000000,
+            },
+          ]),
+      })
+    );
+    render(<ImageGrid recompute={true} setRecompute={() => {}} />);
+    const imageTitle = await screen.findByText("Untitled");
+    expect(imageTitle).toBeInTheDocument();
+  });
+
   // Test that the component shows an error message when the fetch fails.
   test("Shows an error message upon a failure to pull the images.", async () => {
     fetch.mockImplementationOnce(() => Promise.resolve({ ok: false }));

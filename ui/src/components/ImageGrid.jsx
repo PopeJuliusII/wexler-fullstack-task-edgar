@@ -96,6 +96,7 @@ const ImageGrid = ({ recompute, setRecompute }) => {
         ) : (
       <ul className="grid grid-cols-2 gap-4 mx-8">
         {images.map((image) => {
+          const imageTitle = image?.title ?? "Untitled";
           return (
             <li key={image.id} className="relative">
               <div className="card lg:card-side bg-base-100 shadow-xl">
@@ -103,14 +104,14 @@ const ImageGrid = ({ recompute, setRecompute }) => {
                 <figure>
                   <img
                     src={image.link}
-                    alt={image.title}
+                    alt={imageTitle}
                     className="h-60 w-full object-cover"
                   />
                 </figure>
                 </a>
                 <div className="card-body max-h-60 min-h-60 max-w-full">
-                  <h2 className="card-title text-lg truncate" title={image.title} onClick={() => navigator.clipboard.writeText(image.title)}>
-                    {image.title.length > 30 ? `${image.title.slice(0, 30)}...` : image.title}
+                  <h2 className="card-title text-lg truncate" title={imageTitle} onClick={() => navigator.clipboard.writeText(imageTitle)}>
+                    {imageTitle.length > 30 ? `${imageTitle.slice(0, 30)}...` : imageTitle}
                   </h2>
                   <div className="space-y-1 flex-grow">
                     <p className="text-sm">Views: {image.views}</p>
